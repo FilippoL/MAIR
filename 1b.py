@@ -1,6 +1,5 @@
 import json
 import os
-import keyboard
 
 '''Script that recursively searches into folder, when 
     finds a json files (which structure was given to us),
@@ -11,19 +10,30 @@ import keyboard
 '''
 
 
-#  Function writing to file from given parameters, in this case the array with all the utterance and dialog acts.
-def write_dialogue_to_file(content, dialogue_index, filename):
+def write_dialogue_to_file(utterances, dialogue_index, filename):
+    """
+    Function used to write a dialogue to a specified file line by line
+    :param utterances: dialogues extracted from the json files
+    :param dialogue_index: index of the dialogue considered
+    :param filename: name of the file to which the dialogue will be written
+    """
     with open(filename, 'a') as file:
-        for sentence_index in range(len(content[dialogue_index][0])):
-            file.write('{0}     {1}\n'.format(content[dialogue_index][0][sentence_index],
-                                              content[dialogue_index][1][sentence_index]))
+        for sentence_index in range(len(utterances[dialogue_index][0])):
+            file.write('{0}     {1}\n'.format(utterances[dialogue_index][0][sentence_index],
+                                              utterances[dialogue_index][1][sentence_index]))
 
 
-def read_utterances_from_files(file, voice_sample):
+def read_utterances_from_files(session_folder, voice_sample_folder):
+    """
+    Function used to extract dialogues from json files
+    :param session_folder: Name of the folder in which the voice_sample_folder can be found
+    :param voice_sample_folder: Name of the folder from which the dialogue is to be extracted
+    :return: array containing the classification, the content of the dialogue and the session id
+    """
     utterance_content = []
     dialog_act = []
 
-    with open('./test/data/' + file + '/' + voice_sample + '/label.json') as label_data:
+    with open('./test/data/' + session_folder + '/' + voice_sample_folder + '/label.json') as label_data:
         label = json.load(label_data)
 
         for j in range(len(label['turns'])):
@@ -35,6 +45,11 @@ def read_utterances_from_files(file, voice_sample):
 
 
 def keyword_classifier(utterance):
+    """
+    Function used to classify a sentence based on a keyword classifier
+    :param utterance: sentence to be classified
+    :return: array containing all classified categories
+    """
     categories = {
         'hello': ['hi', 'greetings', 'hello', 'what\'s up', 'hey', 'how are you?', 'good morning', 'good night',
                   'good evening', 'good day', 'howdy', 'hi-ya', 'hey ya'],
@@ -68,7 +83,10 @@ def keyword_classifier(utterance):
 
     return classification if len(classification) > 0 else None
 
-def run_keyword_classifier():
+def get_user_input():
+    """
+    Function used to prompt user for input to classify
+    """
     while True:
         utterance = input('Please make your request and then hit \'enter\'. Type \'exit\' to end the programm.\n')
         if utterance == 'exit':
@@ -76,17 +94,17 @@ def run_keyword_classifier():
 
         result = keyword_classifier(utterance)
         if result is not None:
-            print('The following category(ies) have been identified:')
+            print('The following category(ies) have been identified using the keyword classifier:')
             print(*result, sep="\n")
         else:
-            print('Unfortunately, no categories were detected for the sentence you entered.')
+            print('Unfortunately, no categories were detected for the sentence you entered using the keyword classifier.')
 
 
 if __name__ == '__main__':
     utterances = []
-    for file in os.listdir('./test/data/'):
-        for voice_sample in os.listdir('./test/data/' + file):
-            utterances.append(read_utterances_from_files(file, voice_sample))
+    for session_folder in os.listdir('./test/data/'):
+        for voice_sample_folder in os.listdir('./test/data/' + session_folder):
+            utterances.append(read_utterances_from_files(session_folder, voice_sample_folder))
 
     if not os.path.isfile('utterance_dialog_act.txt'): [
         write_dialogue_to_file(utterances, dialogue_index, 'utterance_dialog_act.txt') for dialogue_index in
@@ -95,6 +113,6 @@ if __name__ == '__main__':
     #  85%  =  8406
     #  15%  =  1484
 
-    run_keyword_classifier()
+    get_user_input()
 
 
