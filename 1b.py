@@ -43,7 +43,7 @@ def main():
                     session_id = label['session-id']
                 utterances.append([dialog_act, utterance_content, session_id])
 
-    write_to_file(utterances, 'TextClassification/utterance_dialog_act.txt')  # Function call
+    write_to_file(utterances, 'utterance_dialog_act.txt')  # Function call
 
     # Displaying everything.
     for i in range(len(utterances)):
@@ -53,8 +53,55 @@ def main():
             print('{0}     {1}'.format(utterances[i][0][k], utterances[i][1][k]))
 
 
+def keyword_classifier(utterance):
+    categories = {
+        'hello': ['hi', 'greetings', 'hello', 'what\'s up', 'hey', 'how are you?', 'good morning', 'good night',
+                  'good evening', 'good day', 'howdy', 'hi-ya', 'hey ya'],
+        'bye': ['bye', 'cheerio', 'adios', 'sayonara', 'peace out', 'see ya', 'see you', 'c ya', 'c you', 'ciao'],
+        'ack': ['okay', 'um', 'whatever', 'ok', 'o.k.', 'kay ', 'fine ', 'good '],
+        'confirm': ['is it', 'is that', 'make sure', 'confirm', 'double check', 'check again', 'does it'],
+        'deny': ['dont want', 'don\'t want', 'wrong', 'dont like', 'don\'t like'],
+        'inform': ['dont care', 'don\'t care', 'whatever', 'restaurants', 'Bakery cafÈs', 'Barbecue restaurants',
+                   'Coffeehouse chains', 'Doughnut shops', 'Fast-food', 'chicken restaurants',
+                   'Fish and chip restaurants', 'Frozen yogurt companies', 'Hamburger restaurants',
+                   'Hot dog restaurants', 'Ice cream parlor', 'Noodle restaurants', 'Ramen shops', 'Oyster bars',
+                   'Pancake houses', 'Pizza chains', 'Pizza franchises', 'Seafood restaurants', 'Steakhouses',
+                   'Submarine sandwichrestaurants', 'Sushi restaurants', 'Vegetarian restaurants', 'spanish', 'mexican',
+                   'thai', 'indonesian', 'japanese', 'west', 'north', 'south', 'east', 'polynesian', 'italian',
+                   'portuguese', 'moderate', 'expensive', 'cheap', 'vietnamese', 'any', 'priced'],
+        'negate': ['no', 'false', 'nope'],
+        'repeat': ['repeat', 'say again', 'what was that'],
+        'reqalts': ['how about', 'what about', 'anything else'],
+        'reqmore': ['more', 'additional information'],
+        'request': ['what', 'whats' 'what\'s', 'why', 'where', 'when', 'how much', 'may', 'address', 'phone number',
+                    'area'],
+        'restart': ['reset', 'start over', 'restart'],
+        'thankyou': ['thank you', 'cheers', 'thanks']
+    }
+
+    classification = []
+    sentence_to_classify = utterance.lower()
+    for category, keywords in categories.items():
+        keywords_found = [keyword for keyword in keywords if keyword in sentence_to_classify]
+        if len(keywords_found) > 0: classification.append(category)
+
+    return classification if len(classification) > 0 else None
+
+
 if __name__ == '__main__':
     main()
 
-#  85%  =  8406
-#  15%  =  1484
+    #  85%  =  8406
+    #  15%  =  1484
+
+    while True:
+        utterance = input('Please make your request and then hit \'enter\'. Type \'exit\' to end the programm.\n')
+        if utterance == 'exit':
+            break
+
+        result = keyword_classifier(utterance)
+        if result is not None:
+            print('The following category(ies) have been identified:')
+            print(*result, sep="\n")
+        else:
+            print('Unfortunately, no categories were detected for the sentence you entered.')
