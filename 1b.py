@@ -1,14 +1,6 @@
 import json
 import os
 
-'''Script that recursively searches into folder, when 
-    finds a json files (which structure was given to us),
-    it reads content in order to select user utterance 
-    and its value as dialog act. 
-    Data is retrieved both from label.json,
-    located in test/data/* directory. 
-'''
-
 
 def write_dialogue_to_file(utterances, dialogue_index, filename):
     """
