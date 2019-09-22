@@ -1,5 +1,6 @@
 import json
 import os
+from collections import Counter
 from numpy.random import choice
 
 
@@ -81,16 +82,19 @@ def keyword_classifier(utterance):
 def random_keyword_classifier():
     """
     Function used to classify a sentence based on a pseudo random value
-    :param utterance: sentence to be classified
-    :return: array containing all classified categories
+    :return: The chosen category of utterance.
     """
-    categories = ['hello', 'bye', 'ack', 'confirm', 'deny', 'inform', 'negate', 'repeat', 'reqalts', 'reqmore',
-                  'request', 'restart', 'thankyou', 'affirm', 'null']
+    dialog_act_counter = Counter()
 
-    my_choice = choice(categories, replace=False,
-                       p=[0.00324, 0.11755, 0.00107, 0.006, 0.00094, 0.35505, 0.01518,
-                          0.00115, 0.06124, 0.00017, 0.22733, 0.00048, 0.11396, 0.04036,
-                          0.05628])
+    with open(os.path.abspath("TrainFiles/train_dialogact.txt"), 'r') as file:
+        dialog_act_counter.update(file.read().split())
+        file.seek(0)
+        tot_dialog_act = len(file.readlines())
+
+    categories = [cat for cat in dialog_act_counter.keys()]
+    probabilities = [prob / tot_dialog_act for prob in dialog_act_counter.values()]
+
+    my_choice = choice(categories, p=probabilities)
     return my_choice
 
 
@@ -99,7 +103,7 @@ def get_user_input():
     Function used to prompt user for input to classify
     """
     while True:
-        utterance = input('Please make your request and then hit \'enter\'. Type \'exit\' to end the programm.\n')
+        utterance = input('Please make your request and then hit \'enter\'. Type \'exit\' to end the program.\n')
         if utterance == 'exit':
             break
 
