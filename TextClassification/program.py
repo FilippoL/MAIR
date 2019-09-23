@@ -86,7 +86,7 @@ def random_keyword_classifier():
     """
     dialog_act_counter = Counter()
 
-    with open(os.path.abspath("TrainFiles/train_dialogact.txt"), 'r') as file:
+    with open(os.path.abspath("train_dialogact.txt"), 'r') as file:
         dialog_act_counter.update(file.read().split())
         file.seek(0)
         tot_dialog_act = len(file.readlines())
@@ -128,19 +128,3 @@ if __name__ == '__main__':
         write_dialogue_to_file(utterances, dialogue_index, 'utterance_dialog_act.txt') for dialogue_index in
         range(len(utterances))]
     get_user_input()
-
-#   10169 = inform = 35.505%
-#   29 = ack = 0.101%
-#   1156 = affirm = 4.036%
-#   3367 = bye = 11.755%
-#   172 = confirm = 0.6%
-#   27 = deny = 0.094%
-#   93 = hello = 0.324%
-#   435 = negate = 1.518%
-#   33 = repeat = 0.115%
-#   1754 = reqalts = 6.124%
-#   5 = reqmore = 0.017%
-#   6511 = request = 22.733%
-#   14 = restart = 0.048%
-#   3264 = thankyou = 11.396%
-#   1612 = null = 5.628%
