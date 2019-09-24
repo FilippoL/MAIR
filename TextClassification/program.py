@@ -45,29 +45,52 @@ def keyword_classifier(utterance):
     :return: array containing all classified categories
     """
     categories = {
-        'hello': ['hi', 'greetings', 'hello', 'what\'s up', 'hey', 'how are you?', 'good morning', 'good night',
+        'hello': ['hi ', 'greetings', 'hello', 'what\'s up', 'hey ', 'how are you?', 'good morning', 'good night',
                   'good evening', 'good day', 'howdy', 'hi-ya', 'hey ya'],
         'bye': ['bye', 'cheerio', 'adios', 'sayonara', 'peace out', 'see ya', 'see you', 'c ya', 'c you', 'ciao'],
-        'ack': ['okay', 'um', 'whatever', 'ok', 'o.k.', 'kay ', 'fine ', 'good '],
+        'ack': ['okay', 'whatever', 'ok ', 'o.k. ', 'kay ', 'fine '],
         'confirm': ['is it', 'is that', 'make sure', 'confirm', 'double check', 'check again', 'does it'],
         'deny': ['dont want', 'don\'t want', 'wrong', 'dont like', 'don\'t like'],
-        'inform': ['dont care', 'don\'t care', 'whatever', 'restaurants', 'Bakery cafÈs', 'Barbecue restaurants',
-                   'Coffeehouse chains', 'Doughnut shops', 'Fast-food', 'chicken restaurants',
-                   'Fish and chip restaurants', 'Frozen yogurt companies', 'Hamburger restaurants',
-                   'Hot dog restaurants', 'Ice cream parlor', 'Noodle restaurants', 'Ramen shops', 'Oyster bars',
-                   'Pancake houses', 'Pizza chains', 'Pizza franchises', 'Seafood restaurants', 'Steakhouses',
-                   'Submarine sandwichrestaurants', 'Sushi restaurants', 'Vegetarian restaurants', 'spanish', 'mexican',
-                   'thai', 'indonesian', 'japanese', 'west', 'north', 'south', 'east', 'polynesian', 'italian',
-                   'portuguese', 'moderate', 'expensive', 'cheap', 'vietnamese', 'any', 'priced'],
-        'negate': ['no', 'false', 'nope'],
+        'inform': ['dont care', 'don\'t care', 'whatever', 'bakery', 'bar', 'cafe', 'coffeeshop', 'pub', 'restaurants',
+                   'roadhouse', 'african',
+                   'american', 'arabian', 'asian', 'international', 'european', 'central american', 'middle eastern',
+                   'world', 'vegan', 'vegetarian', 'free', 'kosher', 'traditional', 'fusion', 'modern', 'afghan',
+                   'algerian', 'angolan', 'argentine',
+                   'austrian', 'australian', 'bangladeshi', 'belarusian', 'belgian', 'bolivian', 'bosnian',
+                   'herzegovinian', 'brazilian', 'british', 'bulgarian', 'cambodian',
+                   'cameroonian', 'canadian', 'cantonese', 'catalan', 'caribbean', 'chadian', 'chinese', 'colombian',
+                   'costa rican', 'czech', 'congolese', 'cuban', 'danish', 'ecuadorian', 'salvadoran', 'emirati',
+                   'english', 'eritrean',
+                   'estonian',
+                   'ethiopian', 'finnish', 'french', 'german', 'ghanaian', 'greek', 'guatemalan', 'dutch', 'honduran',
+                   'hungarian', 'icelandic',
+                   'indian', 'indonesian', 'iranian', 'iraqi', 'irish', 'israeli', 'italian', 'ivorian', 'jamaican',
+                   'japanese',
+                   'jordanian', 'kazakh', 'kenyan', 'korean', 'lao', 'latvian', 'lebanese', 'libyan', 'lithuanian',
+                   'malagasy', 'malaysian',
+                   'mali', 'mauritanian', 'mediterranean', 'mexican', 'moroccan', 'namibian', 'new zealand',
+                   'nicaraguan',
+                   'nigerien', 'nigerian', 'norwegian', 'omani', 'pakistani', 'panamanian', 'paraguayan', 'peruvian',
+                   'persian', 'philippine', 'polynesian', 'polish', 'portuguese', 'romanian', 'russian', 'scottish',
+                   'senegalese', 'serbian',
+                   'singaporean', 'slovak', 'somalian', 'spanish', 'sudanese', 'swedish', 'swiss', 'syrian', 'thai',
+                   'tunisian', 'turkish',
+                   'ukranian', 'uruguayan', 'vietnamese', 'welsh', 'zambian', 'zimbabwean', 'west', 'north', 'south',
+                   'east', 'part of town', 'moderate', 'expensive', 'cheap', 'any ', 'priced', 'barbecue', 'burger',
+                   'chicken',
+                   'doughnut', 'fast food',
+                   'fish and chips', 'hamburger', 'hot dog', 'ice cream', 'noodles', 'pasta', 'pancake', 'pizza',
+                   'ramen', 'restaurant', 'seafood', 'steak',
+                   'sandwich', 'sushi'],
+        'negate': ['no ', 'false', 'nope'],
         'repeat': ['repeat', 'say again', 'what was that'],
         'reqalts': ['how about', 'what about', 'anything else'],
         'reqmore': ['more', 'additional information'],
-        'request': ['what', 'whats' 'what\'s', 'why', 'where', 'when', 'how much', 'may', 'address', 'phone number',
-                    'area'],
+        'request': ['what', 'whats' 'what\'s', 'why', 'where', 'when', 'how much', 'may', 'address', 'post code',
+                    'location', 'phone number'],
         'restart': ['reset', 'start over', 'restart'],
         'thankyou': ['thank you', 'cheers', 'thanks'],
-        'affirm': ['ye', 'yes', 'right'],
+        'affirm': ['ye ', 'yes', 'right ']
     }
 
     classification = []
@@ -76,10 +99,10 @@ def keyword_classifier(utterance):
         keywords_found = [keyword for keyword in keywords if keyword in sentence_to_classify]
         if len(keywords_found) > 0: classification.append(category)
 
-    return classification if len(classification) > 0 else None
+    return classification if len(classification) > 0 else ['null']
 
 
-def random_keyword_classifier():
+def random_keyword_classifier(utterance):
     """
     Function used to classify a sentence based on a pseudo random value
     :return: The chosen category of utterance.
@@ -95,7 +118,7 @@ def random_keyword_classifier():
     probabilities = [prob / tot_dialog_act for prob in dialog_act_counter.values()]
 
     my_choice = choice(categories, p=probabilities)
-    return my_choice
+    return [my_choice]
 
 
 def get_user_input():
@@ -118,6 +141,85 @@ def get_user_input():
                 'Unfortunately, no categories were detected for the sentence you entered using the keyword classifier.')
 
 
+def test_classifier(utterances, dialogue_index, sentence_index, classifier):
+    keyword_classification = classifier(utterances[dialogue_index][1][sentence_index])
+    ground_truths = [ground_truth.split('(')[0] for ground_truth in
+                     utterances[dialogue_index][0][sentence_index].split('|')]
+
+    ground_truths.sort()
+    keyword_classification.sort()
+    if ground_truths != keyword_classification:
+        print(ground_truths, keyword_classification, utterances[dialogue_index][1][sentence_index])
+        return False, ground_truths, keyword_classification
+    else:
+        return True, ground_truths, keyword_classification
+
+
+def evaluate_classifier(utterances, test_data, classifier):
+    correctly_classified = 0
+    incorrectly_classified = 0
+    true_positives = {'hello': 0, 'bye': 0, 'ack': 0, 'confirm': 0, 'deny': 0, 'inform': 0,
+                      'negate': 0, 'repeat': 0, 'reqalts': 0, 'reqmore': 0, 'request': 0, 'restart': 0,
+                      'thankyou': 0, 'affirm': 0, 'null': 0}
+    false_negatives = {'hello': 0, 'bye': 0, 'ack': 0, 'confirm': 0, 'deny': 0, 'inform': 0,
+                       'negate': 0, 'repeat': 0, 'reqalts': 0, 'reqmore': 0, 'request': 0, 'restart': 0,
+                       'thankyou': 0, 'affirm': 0, 'null': 0}
+    false_positives = {'hello': 0, 'bye': 0, 'ack': 0, 'confirm': 0, 'deny': 0, 'inform': 0,
+                       'negate': 0, 'repeat': 0, 'reqalts': 0, 'reqmore': 0, 'request': 0, 'restart': 0,
+                       'thankyou': 0, 'affirm': 0, 'null': 0}
+    for dialogue_index in range(test_data):
+        for sentence_index in range(len(utterances[dialogue_index][0])):
+            test_result, ground_truths, keyword_classification = test_classifier(utterances, dialogue_index,
+                                                                                 sentence_index, classifier)
+            if test_result == True:
+                correctly_classified += 1
+                for i in range(len(ground_truths)):
+                    true_positives[ground_truths[i]] += 1
+            else:
+                incorrectly_classified += 1
+                for i in range(len(ground_truths)):
+                    if ground_truths[i] not in keyword_classification:
+                        false_negatives[ground_truths[i]] += 1
+                    else:
+                        true_positives[ground_truths[i]] += 1
+                for i in range(len(keyword_classification)):
+                    if keyword_classification[i] not in ground_truths:
+                        false_positives[keyword_classification[i]] += 1
+
+    return correctly_classified, incorrectly_classified, true_positives, false_negatives, false_positives
+
+
+def get_recall(true_positives, false_negatives):
+    recall = {}
+    for category in true_positives:
+        if true_positives[category] == 0 and false_negatives[category] == 0:
+            recall[category] = 0
+        else:
+            recall[category] = true_positives[category] / (true_positives[category] + false_negatives[category])
+
+    return recall
+
+
+def get_precision(true_positives, false_positives):
+    precision = {}
+    for category in true_positives:
+        if true_positives[category] == 0 and false_positives[category] == 0:
+            precision[category] = 0
+        else:
+            precision[category] = true_positives[category] / (true_positives[category] + false_positives[category])
+
+    return precision
+
+
+def get_average(values_per_category):
+    sum = 0
+    num_categories = 0
+    for category in values_per_category:
+        num_categories += 1
+        sum += values_per_category[category]
+    return sum / num_categories
+
+
 if __name__ == '__main__':
     utterances = []
     for session_folder in os.listdir('../test/data/'):
@@ -127,4 +229,19 @@ if __name__ == '__main__':
     if not os.path.isfile('utterance_dialog_act.txt'): [
         write_dialogue_to_file(utterances, dialogue_index, 'utterance_dialog_act.txt') for dialogue_index in
         range(len(utterances))]
+
+    training_data = int(len(utterances) * .8)
+    test_data = int(len(utterances) * .2)
+    correctly_classified, incorrectly_classified, true_positives, false_negatives, false_positives = evaluate_classifier(
+        utterances, test_data, random_keyword_classifier)
+    recall = get_recall(true_positives, false_negatives)
+    precision = get_precision(true_positives, false_positives)
+    average_recall = get_average(recall)
+    average_precision = get_average(precision)
+    print('Accuracy: ', correctly_classified / (correctly_classified + incorrectly_classified))
+    print('Recall per category: ', recall)
+    print('Average Recall: ', average_recall)
+    print('Precision per category: ', precision)
+    print('Average Precision: ', average_precision)
+
     get_user_input()

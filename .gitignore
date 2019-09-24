@@ -4,3 +4,7 @@
 env/
 
 test/
+
+venv_64/
+
+.ipynb_checkpoints/
