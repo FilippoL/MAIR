@@ -2,16 +2,14 @@ import json
 import os
 from collections import Counter
 from numpy.random import choice
-from numpy import array
+from numpy import array, argmax, newaxis
 import pickle
 from sklearn.ensemble import RandomForestClassifier
-import matplotlib.pyplot as plt
-import scikitplot as skplt
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.stem import SnowballStemmer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.metrics import classification_report, accuracy_score, log_loss, jaccard_score
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, log_loss, jaccard_score
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -65,12 +63,14 @@ def get_fitted_model(dialog_acts, utterances):
     integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
     y = one_hot_encoder.fit_transform(integer_encoded)
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, random_state=0)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
 
     if not os.path.isfile("model_binary_RFC.sav"):
         with open("model_binary_RFC.sav", "wb") as model:
             classifier = RandomForestClassifier(n_estimators=500)
+
             classifier.fit(x_train, y_train)
+
             try:
                 pickle.dump(classifier, model)
 
@@ -82,6 +82,7 @@ def get_fitted_model(dialog_acts, utterances):
         with open('model_binary_RFC.sav', 'rb') as training_model:
             classifier = pickle.load(training_model)
             training_model.close()
+
     return classifier, x, y, x_test, y_test, label_encoder.classes_, vectorizer
 
 
@@ -358,9 +359,15 @@ def get_stats(full_utterances, x_test, y_test, x, y):
     print('Average Precision: ', average_precision)
 
     print("\n\n###################++RANDOM FOREST CLASSIFIER++#########################")
+
     y_pred = classifier.predict(x_test)
-    print("Accuracy of train set: {0}".format(classifier.score(x, y)))
-    print("Accuracy of test set: {0}".format(accuracy_score(y_test, y_pred)))
+
+    y_test_non_category = [argmax(t) for t in y_test]
+    y_predict_non_category = [argmax(t) for t in y_pred]
+    conf_mat = confusion_matrix(y_test_non_category, y_predict_non_category)
+    conf_mat = conf_mat.astype('float') / conf_mat.sum(axis=1)[:, newaxis]
+    print("Accuracy per class: {0}".format(conf_mat.diagonal()))
+    print("Accuracy : {0}".format(accuracy_score(y_test, y_pred)))
     print("Logarithmic loss: {0}".format(log_loss(y_test, y_pred)))
     print("Macro avg Jaccard index: {0}\n".format(jaccard_score(y_test, y_pred, average="macro")))
     print(classification_report(y_test, y_pred, target_names=labels))
@@ -376,6 +383,7 @@ def use_random_forest_classifier(classifier, vectorizer, labels):
             break
         else:
             y_pred = classifier.predict(vectorizer.transform([utterance]))
+
             try:
                 label_pred = labels[y_pred[0].tolist().index(1)]
                 print("Prediction: {0}".format(label_pred))
@@ -426,7 +434,6 @@ if __name__ == '__main__':
 
     dialog_acts, stripped_utterances = read_target_and_labels_from_file("utterance_dialog_act_only_shuffled.txt")
     classifier, x, y, x_test, y_test, labels, vectorizer = get_fitted_model(dialog_acts, stripped_utterances)
-    y_pred = classifier.predict(x_test)
 
     while True:
         user_input = input('\nPlease make your request and then hit [enter]. Type \'exit\' to end the program.\n' +

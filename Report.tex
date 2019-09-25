@@ -1,0 +1,158 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{caption}
+\usepackage{textcomp}
+\usepackage{dirtree}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+% Code
+\usepackage{xcolor}
+\usepackage{listings}
+ \lstset{
+   language=c,
+   basicstyle=\scriptsize\ttfamily,
+   keywordstyle=\bfseries\ttfamily\color{orange},
+   stringstyle=\color{green!50!black}\ttfamily,
+   commentstyle=\color{gray}\ttfamily,
+   emph={square},
+   emphstyle=\color{blue}\texttt,
+   emph={[2]root,base},
+   emphstyle={[2]\color{yac}\texttt},
+   showstringspaces=false,
+   flexiblecolumns=false,
+   tabsize=2,
+   numbers=left,
+   numberstyle=\tiny,
+   numberblanklines=false,
+   stepnumber=1,
+   numbersep=10pt,
+   xleftmargin=15pt
+ }
+
+\usepackage[backend=biber, style=numeric, autolang]{biblatex}
+	\defbibheading{secbib}[]{%
+		\section*{#1}%
+		\markboth{#1}{#1}}
+	\bibliography{bibfile}
+    \renewcommand*{\bibfont}{\footnotesize}
+    \setlength{\bibitemsep}{0pt plus 0.3ex}
+
+\usepackage{subcaption}
+
+\usepackage{fourier}
+\usepackage{array}
+\usepackage{makecell}
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\captionsetup[subfigure]{list=true, font=large, labelfont=bf,
+labelformat=brace, position=top}
+
+\title{Project 1b: Text Classification}
+\author{Emiel Scheffer, Filippo Maria Libardi, Igor Kuczuk Modenezi, Jacqueline Isabel Wagner}
+\begin{document}
+\maketitle
+\section{Quantitative Evaluation}
+Evaluation on test set containing $223$ samples: \\
+\begin{tabular}{c|M{3.5cm}|M{3.5cm}|M{3.5cm}}
+    & \multicolumn{2}{c}{baseline classifiers} &  \\
+    & keyword classifier & random classifier & machine learning classifier\\ \toprule
+    accuracy & $80.2 \%$ & $22.8 \% & $98.5\\ \hline
+    top $3$ categories & \makecell{ack ($100 \%$) \\ deny ($100 \%$)\\ negate ($100 \%$)\\ restart ($100 \%$)\\thank you ($100 \%$)\\ bye($100 \%$)} & \makecell{inform ($39.2 \%$) \\ request ($24.9\%$) \\ thankyou ($16.3\%$)} & \makecell{restart ($100\%$) \\ thankyou ($99.8\%$)  \\  request ($99.5 \%$)}\\ \hline
+    worst $3$ categories & \makecell{negate ($39.3 \%$)\\ confirm ($69.2\%)$ \\ affirm ($73.7 \%$)} & \makecell{hello ($0 \%$) \\ ack ($0 \%$) \\ repeat ($0 \%$) \\ reqmore ($0 \%$) \\ restart ($0 \%$) \\} & \makecell{reqmore ($0 \%$) \\ ack ($50 \%$) \\ hello ($72 \%$) \\}  \\ \hline
+    average precision & $72.1 \%$ & $7.7 \%$ & $92 \%$ - $99 \%$ \\ \hline
+    average recall & $82.3 \%$ & $6.4 \%$ & $84 \%$ - $99 \%$ \\
+\end{tabular}{} \\
+
+
+While it is undoubtedly interesting to know how many cases have been classified correctly overall, employing diverse metrics sheds light on the systems true performance. We decided to calculate the average precision, as well as the average recall, to answer some very relevant questions:
+\begin{enumerate}
+    \item What proportion of assigned categories was actually correct? (precision)
+    \item What proportion of ground truth categories was identified correctly? (recall)
+\end{enumerate}{}
+We obtained answers for these questions by (1) calculating the precision and recall for each category and (2) averaging over all possible categories.
+
+In addition, we chose to highlight the three best performing categories, along with the top three under-performing categories. We obtained the three best categories by analyzing the recall for each category. Using this information we were able to quickly identify commonly incorrectly classified sentence-patterns to improve our systems.
+
+Average precision and recall of the ML classifier states respectively the micro average and macro average.
+While macro average computes the metric independently for each single class and then evaluates the average, the micro average will add together each class contribution and then take the average.
+
+In our case is preferable to value more the micro average as the occurrence of each class is not evenly distributed among the test set (e.g. there are 2048 instances of "inform" and 0 of "reqmore").
+
+\section{Error Analysis}
+Following the quantitative analysis, we take a more in depth look at the mistakes made by each of the three classifiers. However, since the random classifier randomly assigns categories, there are no sentences which are especially difficult to detect. Therefore we refrain from listing any examples for this specific classifier and instead focus on the keyword classifier in \autoref{keyword} and the machine learning classifier in \autoref{ml}.
+
+\subsection{Keyword Classifier}
+\label{keyword}
+During our evaluation under-performance was mostly attributed to three different categories: ambiguous categories, overlapping keywords and extremely short messages.
+
+For some instances the ground truth categorization, while correct, could easily be extended to include additional categories. For clarity, two examples are listed in \autoref{table1}.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l|l|l}
+     sentence & 'what about international food' & 'okay thank you good bye' \\ \hline
+     ground truth & reqalts & bye, thankyou \\ \hline
+     classification result & reqalts, inform, request & ack, bye, thankyou
+    \end{tabular}
+    \caption{difficulties related to ambiguous categories}
+    \label{table1}
+\end{table}{} \\
+While 'okay thank you good bye' was correctly classified as corresponding to the categories 'thankyou' and 'bye', it additionally retrieves the category 'ack'. Considering that the sentence contains the phrase 'okay', this categorization seems plausible.
+
+Furthermore, using certain keywords was necessary to correctly classify large amounts of data belonging to a given category. However, in some instances, these keywords are used in a different context. Hence, resulting in a wrong classification when employing a keyword classifier. An example of this is given in \autoref{table2}.\\
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l|l}
+     sentence & 'no i said irish' \\ \hline
+     ground truth & negate  \\ \hline
+     classification result & inform, negate
+    \end{tabular}
+    \caption{difficulties related to overlapping keywords}
+    \label{table2}
+\end{table}{}
+
+Lastly, to prevent overfitting, certain very specific keywords could not be assigned to any category. Thus, extremely short messages only containing highly specific keywords are not classified correctly. Underlining examples are given in \autoref{table3}.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l|l|l|l}
+     sentence & 'any' & 'phone' & 'center'\\ \hline
+     ground truth & inform & request & inform\\ \hline
+     classification result & null & null & null
+    \end{tabular}
+    \caption{difficulties stemming from extremely short messages}
+    \label{table3}
+\end{table}{}
+
+\subsection{Machine Learning Classifier}
+\label{ml}
+
+
+\section{Difficult Cases}
+
+For the comparison, it was used two phrases that were identified as difficult for the systems to classify: an utterance with no information (such as "cough" or "noise", but that doesn't appear in the training data) and an utterance with more than one information. This could cause clashes.
+
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l|l|l|l}
+      & keyword classifier & random classifier & machine learning classifier \\ \hline
+     '' & & & \\ \hline
+     '' & & & \\
+    \end{tabular}
+    \caption{difficult cases and their results}
+    \label{table4}
+\end{table}{}
+
+\section{System Comparison}
+
+\end{document}
+
+
+
