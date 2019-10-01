@@ -1,16 +1,17 @@
 import json
 import os
-from collections import Counter
-from numpy.random import choice
-from numpy import array, argmax, newaxis
 import pickle
+import warnings
+from collections import Counter
+
+from nltk.stem import SnowballStemmer
+from numpy import array, argmax, newaxis
+from numpy.random import choice
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
-from nltk.stem import SnowballStemmer
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, log_loss, jaccard_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, log_loss, jaccard_score
-import warnings
 
 warnings.filterwarnings('ignore')
 
@@ -49,9 +50,15 @@ def get_fitted_model(dialog_acts, utterances):
     and fit the a Random Forest Classifier with the processed label and target.
     :param dialog_acts: targets to be encoded.
     :param utterances: labels to be vectorised.
-    :return: seven elements to be unpacked, in order: classifier, x, y, x_test, y_test, labels name, vectorised used.
+    :return: seven elements to be unpacked, in order: classifier, x, y, x_test, y_test, labels name, vectoriser used.
     """
-    vectorizer = CountVectorizer()
+    voc = []
+    for u in utterances:
+        for w in u.split():
+            voc.append(w)
+
+    voc = set(voc)
+    vectorizer = CountVectorizer(vocabulary=voc)
     x = vectorizer.fit_transform(utterances).toarray()
 
     array(dialog_acts)
@@ -65,23 +72,24 @@ def get_fitted_model(dialog_acts, utterances):
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
 
-    if not os.path.isfile("model_binary_RFC.sav"):
-        with open("model_binary_RFC.sav", "wb") as model:
+    if not os.path.isfile("../TextClassification/model_binary_RFC.sav"):
+        with open("../TextClassification/model_binary_RFC.sav", "wb") as model:
             classifier = RandomForestClassifier(n_estimators=500)
-
             classifier.fit(x_train, y_train)
 
             try:
                 pickle.dump(classifier, model)
+                model.close()
 
             except MemoryError:
                 print("I failed dumping.\n\n")
-        model.close()
+                model.close()
 
     else:
-        with open('model_binary_RFC.sav', 'rb') as training_model:
+        with open("../TextClassification/model_binary_RFC.sav", "rb") as training_model:
             classifier = pickle.load(training_model)
             training_model.close()
+
 
     return classifier, x, y, x_test, y_test, label_encoder.classes_, vectorizer
 
